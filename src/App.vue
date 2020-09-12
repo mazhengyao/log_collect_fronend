@@ -5,15 +5,26 @@
     <!--<router-view></router-view>-->
     <div id="myChart">
     </div>
+    <div class="container">
+      <input id="document" type="file" v-on:change="readFileInputEventAsArrayBuffer"/>
+      <div class="row" style="width: 100%;">
+        <div class="span8">
+          <div id="output" class="well"></div>
+        </div>
+      </div>
+      <button type="button" id="show" style="width: 50px;height: 30px;"
+              v-on:click="showDoc">show</button>
+    </div>
   </div>
 </template>
 
 <script>
+import mammoth from 'mammoth'
 export default {
   name: 'app',
   data () {
     return {
-      msg: 'Welcome to big data.',
+      msg: 'Welcome to mammoth.',
       logData: {
         debug:'',
         info:'',
@@ -57,6 +68,37 @@ export default {
       }catch (err) {
         console.log(err)
       }
+    },
+    readFileInputEventAsArrayBuffer(event) {
+    var file = event.target.files[0];
+    console.log(file)
+    var reader = new FileReader();
+
+    reader.onload = function (loadEvent) {
+      var arrayBuffer = loadEvent.target.result;//arrayBuffer
+      mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+        .then((result) =>
+          document.getElementById("output").innerHTML = result.value
+          )
+        .done();
+    };
+
+    reader.readAsArrayBuffer(file);
+  },
+    async showDoc(){
+      let res = await this.$axios.get('http://127.0.0.1:8181/mammoth/queryHtml');
+      let html = res.data;
+      document.getElementById("output").innerHTML = html;
+
+      // var mammoth = require("mammoth");
+      // mammoth.convertToHtml({path: "./demo.docx"})
+      //   .then(result => {
+      //     var html = result.value; // The generated HTML
+      //     console.log(html)
+      //     var messages = result.messages; // Any messages, such as warnings during conversion
+      //   })
+      //   .done();
+
     }
 
   }
@@ -77,5 +119,10 @@ export default {
     margin-left: 42%;
     width: 600px;
     height: 350px;
+    display: none;
+  }
+  #output{
+    text-align: left;
+    width: 60%;
   }
 </style>
