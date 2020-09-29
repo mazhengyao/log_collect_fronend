@@ -3,6 +3,13 @@
     <h1>{{ msg }}</h1>
     <!--<router-link to="/log_form">log_form</router-link>-->
     <!--<router-view></router-view>-->
+    <transform_div>
+        <div style="position: relative; margin: 0; overflow: hidden; word-break: break-all; width: 100%; height: 100%; color:#2c3e50;">
+          {{joydivision}}
+        </div>
+    </transform_div>
+<!--    <router-link to="/transform_div">transform_div</router-link>-->
+<!--    <router-view></router-view>-->
     <div id="myChart">
     </div>
     <div class="container">
@@ -24,7 +31,9 @@ export default {
   name: 'app',
   data () {
     return {
-      msg: 'Welcome to mammoth.',
+      msg: 'Knocking on heaven’s door.',
+      joydivision: 'When routine bites hard and ambitions are low.And resentment rides high but emotions won\'t grow.' +
+        'And we\'re changing our ways, taking different roads.Love, love will tear us apart again.',
       logData: {
         debug:'',
         info:'',
