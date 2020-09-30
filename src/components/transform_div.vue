@@ -1,16 +1,15 @@
 <template>
-  <div ref="transformDiv" @mousedown="mousedownDiv($event)" class="move-content-outer" tabIndex="1">
-    <div class="move-content-header" tabIndex="1">
-      <slot></slot>
-      <div class="move-content-direction show move-content-direction-n"></div>
-      <div class="move-content-direction show move-content-direction-ne"></div>
-      <div class="move-content-direction show move-content-direction-e"></div>
-      <div class="move-content-direction show move-content-direction-se"></div>
-      <div class="move-content-direction show move-content-direction-s"></div>
-      <div class="move-content-direction show move-content-direction-sw"></div>
-      <div class="move-content-direction show move-content-direction-w"></div>
-      <div class="move-content-direction show move-content-direction-nw"></div>
-    </div>
+  <div ref="transformDiv" @mousedown="mousedownDiv($event)" class="move-content-outer" :style="changeStyle"
+       tabIndex="1">
+    <slot></slot>
+    <div class="move-content-direction show move-content-direction-n"></div>
+    <div class="move-content-direction show move-content-direction-ne"></div>
+    <div class="move-content-direction show move-content-direction-e"></div>
+    <div class="move-content-direction show move-content-direction-se"></div>
+    <div class="move-content-direction show move-content-direction-s"></div>
+    <div class="move-content-direction show move-content-direction-sw"></div>
+    <div class="move-content-direction show move-content-direction-w"></div>
+    <div class="move-content-direction show move-content-direction-nw"></div>
   </div>
 </template>
 
@@ -22,14 +21,19 @@
         type: Object
       }
     },
+    computed: {
+      changeStyle() {
+        return `height: ${this.style.height}px; width: ${this.style.width}px`
+      }
+    },
     data() {
       return {
         space: {
           style: '', // 样式
           x: 0, // 鼠标x
           y: 0, // 鼠标y
-          width: 200, // 默认div的宽度
-          height: 200, // 默认div的高度
+          width: this.myStyle.comWidth, // 默认div的宽度
+          height: this.myStyle.comHeight, // 默认div的高度
           top: 0, // 默认div的距离头部距离
           right: 0, // 默认div的距离右侧距离
           bottom: 0, // 默认div的距离底部距离
@@ -37,7 +41,20 @@
           moveHeight: 30, // 默认头部高度
           min: 100, // div宽度高度不能小于min
           moveTarget: null, // 鼠标按下之后移动的target
+        },
+        style: {
+          height: this.myStyle.comHeight,
+          width: this.myStyle.comWidth,
         }
+      }
+    },
+    watch: {
+      myStyle: {
+        handler(newValue, oldValue) {
+          this.style.height = newValue.comHeight
+          this.style.width = newValue.comWidth
+        },
+        deep: true
       }
     },
     mounted() {
@@ -51,8 +68,8 @@
       addMoveContentSuper(divEle, e) {
         // div的style
         this.space.style = divEle.style;
-        this.space.width = this.space.style.width ? this.space.style.width : 200;
-        this.space.height = this.space.style.height ? this.space.style.height : 200;
+        this.space.width = this.space.style.width ? this.space.style.width : this.myStyle.comHeight;
+        this.space.height = this.space.style.height ? this.space.style.height : this.myStyle.comWidth;
         this.space.top = this.space.style.top ? this.space.style.top : 0;
         this.space.left = this.space.style.left ? this.space.style.left : 0;
         this.space.right = this.space.style.right ? this.space.style.right : 0;
@@ -68,53 +85,60 @@
         this.space.left = parseInt(this.space.left.toString().replace("px", ""))
       },
       addMoveContentControl(divEle, e) {
-        // 当鼠标没有按下则不走方法
+        // 当鼠标没有按下则不走方法、超过限制范围不走方法
+        // if (e.buttons !== 1 || e.clientX >= this.myStyle.boardRight || e.clientX <= this.myStyle.boardLeft
+        //   || e.clientY <= this.myStyle.boardTop || e.clientY >= this.myStyle.boardBottom) {
         if (e.buttons !== 1) {
           this.space.moveTarget = null;
           return;
         } else if (this.space.moveTarget === null) {  // 当鼠标按下了,movetarget为空则赋值
           this.space.moveTarget = e.target;
         }
-        // 获取移动元素
-        let move = divEle;
         // 获取所有拉伸的节点
         let direction = divEle.getElementsByClassName("move-content-direction");
-        switch (this.space.moveTarget) {
-          case move:
-            this.addMoveContentMove(divEle, e, move);
-            break; // 头部移动
-          case direction[0] :
-            this.addMoveContentTop(divEle, e, direction[0]);
-            break; // 上拉伸
-          case direction[1] :
-            this.addMoveContentRightTop(divEle, e, direction[1]);
-            break; // 右上拉伸
-          case direction[2] :
-            this.addMoveContentRight(divEle, e, direction[2]);
-            break; // 右拉伸
-          case direction[3] :
-            this.addMoveContentRightButtom(divEle, e, direction[3]);
-            break; // 右下拉伸
-          case direction[4] :
-            this.addMoveContentButtom(divEle, e, direction[4]);
-            break; // 下拉伸
-          case direction[5] :
-            this.addMoveContentLeftButtom(divEle, e, direction[5]);
-            break; // 左下拉伸
-          case direction[6] :
-            this.addMoveContentLeft(divEle, e, direction[6]);
-            break; // 左上拉伸
-          case direction[7] :
-            this.addMoveContentLeftTop(divEle, e, direction[7]);
-            break; // 左上拉伸
-          default :
-            this.addMoveContentMove(divEle, e, move);
-            break;
+
+        // 缩放
+        if (this.space.moveTarget === direction[0]) {
+          // 上缩放
+          this.addMoveContentTop(divEle, e);
+          return;
+        } else if (this.space.moveTarget === direction[1]) {
+          // 右上缩放
+          this.addMoveContentRightTop(divEle, e);
+          return;
+        } else if (this.space.moveTarget === direction[2]) {
+          // 右缩放
+          this.addMoveContentRight(divEle, e);
+          return;
+        } else if (this.space.moveTarget === direction[3]) {
+          // 右下缩放
+          this.addMoveContentRightButtom(divEle, e);
+          return;
+        } else if (this.space.moveTarget === direction[4]) {
+          // 下缩放
+          this.addMoveContentButtom(divEle, e);
+          return;
+        } else if (this.space.moveTarget === direction[5]) {
+          // 左下缩放
+          this.addMoveContentLeftButtom(divEle, e);
+          return;
+        } else if (this.space.moveTarget === direction[6]) {
+          // 左缩放
+          this.addMoveContentLeft(divEle, e);
+          return;
+        } else if (this.space.moveTarget === direction[7]) {
+          // 左上缩放
+          this.addMoveContentLeftTop(divEle, e);
+          return;
+        }
+        // 移动
+        if (this.space.moveTarget.ownerDocument.activeElement === divEle || this.space.moveTarget === divEle) {
+          this.addMoveContentMove(divEle, e);
         }
       },
       // 移动
-      addMoveContentMove(divEle, e, thisEle) {
-        this.addMoveContentSuper.apply(this, arguments);
+      addMoveContentMove(divEle, e) {
+        this.addMoveContentSuper(divEle, e);
         let top = this.space.top + this.space.y;
         let left = this.space.left + this.space.x;
         let width = this.space.width;
@@ -125,24 +149,24 @@
           top = 0
         }
         // 限制 bottom
-        if ((top + height) >= this.myStyle.height) {
-          top = this.myStyle.height - height
+        if ((top + height) >= this.myStyle.boardHeight) {
+          top = this.myStyle.boardHeight - height
         }
         // 限制 left
         if (left <= 0) {
           left = 0
         }
         // 限制 right
-        if ((left + width) >= this.myStyle.width) {
-          left = this.myStyle.width - width
+        if ((left + width) >= this.myStyle.boardWidth) {
+          left = this.myStyle.boardWidth - width
         }
 
         this.space.style.top = top + "px";
         this.space.style.left = left + "px";
       },
       // 向上拉伸
-      addMoveContentTop(divEle, e, thisEle) {
-        this.addMoveContentSuper.apply(this, arguments);
+      addMoveContentTop(divEle, e) {
+        this.addMoveContentSuper(divEle, e);
         let top = this.space.top;
         let height = this.space.height + (-this.space.y);
 
@@ -162,8 +186,8 @@
         this.space.style.height = height + "px";
       },
       // 右上拉伸
-      addMoveContentRightTop(divEle, e, thisEle) {
-        this.addMoveContentSuper.apply(this, arguments);
+      addMoveContentRightTop(divEle, e) {
+        this.addMoveContentSuper(divEle, e);
         let top = this.space.top;
         let left = this.space.left + this.space.x;
         let width = this.space.width + this.space.x;
@@ -175,17 +199,21 @@
         }
         if (width < this.space.min) {
           width = this.space.min;
-        } else {
+        }else{
           top = this.space.top + this.space.y;
         }
         // 限制 top
         if (top <= 0) {
-          top = 0
-          height = this.space.height
+          top = 0;
+          height = this.space.height;
         }
         // 限制 right
-        if ((left + width) >= this.myStyle.width) {
-          width = this.space.width
+        if ((left + width) >= this.myStyle.boardWidth) {
+          width = this.space.width;
+        }
+        // 限制 bottom
+        if ((top + height) >= this.myStyle.boardHeight) {
+          top = this.myStyle.boardHeight - height;
         }
 
         this.space.style.top = top + "px";
@@ -193,8 +221,8 @@
         this.space.style.height = height + "px";
       },
       // 右侧拉伸
-      addMoveContentRight(divEle, e, thisEle) {
-        this.addMoveContentSuper.apply(this, arguments);
+      addMoveContentRight(divEle, e) {
+        this.addMoveContentSuper(divEle, e);
         let width = this.space.width + this.space.x;
         let left = this.space.left + this.space.x;
 
@@ -203,15 +231,15 @@
           width = this.space.min;
         }
         // 限制 right
-        if ((left + width) >= this.myStyle.width) {
+        if ((left + width) >= this.myStyle.boardWidth) {
           width = this.space.width
         }
 
         this.space.style.width = width + "px";
       },
       // 右下拉伸
-      addMoveContentRightButtom(divEle, e, thisEle) {
-        this.addMoveContentSuper.apply(this, arguments);
+      addMoveContentRightButtom(divEle, e) {
+        this.addMoveContentSuper(divEle, e);
         let top = this.space.top + this.space.y;
         let left = this.space.left + this.space.x;
         let width = this.space.width + this.space.x;
@@ -225,11 +253,11 @@
           width = this.space.min;
         }
         // 限制 right
-        if ((left + width) >= this.myStyle.width) {
+        if ((left + width) >= this.myStyle.boardWidth) {
           width = this.space.width
         }
         // 限制 bottom
-        if ((top + height) >= this.myStyle.height) {
+        if ((top + height) >= this.myStyle.boardHeight) {
           height = this.space.height
         }
 
@@ -237,8 +265,8 @@
         this.space.style.height = height + "px";
       },
       // 向下拉伸
-      addMoveContentButtom(divEle, e, thisEle) {
-        this.addMoveContentSuper.apply(this, arguments);
+      addMoveContentButtom(divEle, e) {
+        this.addMoveContentSuper(divEle, e);
         let top = this.space.top + this.space.y;
         let height = this.space.height + this.space.y;
 
@@ -247,15 +275,15 @@
           height = this.space.min;
         }
         // 限制 bottom
-        if ((top + height) >= this.myStyle.height) {
+        if ((top + height) >= this.myStyle.boardHeight) {
           height = this.space.height
         }
 
         this.space.style.height = height + "px";
       },
       // 左下拉伸
-      addMoveContentLeftButtom(divEle, e, thisEle) {
-        this.addMoveContentSuper.apply(this, arguments);
+      addMoveContentLeftButtom(divEle, e) {
+        this.addMoveContentSuper(divEle, e);
         let top = this.space.top + this.space.y;
         let left = this.space.left;
         let width = this.space.width + (-this.space.x);
@@ -276,7 +304,7 @@
           width = this.space.width
         }
         // 限制 bottom
-        if ((top + height) >= this.myStyle.height) {
+        if ((top + height) >= this.myStyle.boardHeight) {
           height = this.space.height
         }
 
@@ -285,8 +313,8 @@
         this.space.style.left = left + "px";
       },
       // 向左拉伸
-      addMoveContentLeft(divEle, e, thisEle) {
-        this.addMoveContentSuper.apply(this, arguments);
+      addMoveContentLeft(divEle, e) {
+        this.addMoveContentSuper(divEle, e);
         let left = this.space.left;
         let width = this.space.width + (-this.space.x);
 
@@ -306,8 +334,8 @@
         this.space.style.width = width + "px";
       },
       // 左上拉伸
-      addMoveContentLeftTop(divEle, e, thisEle) {
-        this.addMoveContentSuper.apply(this, arguments);
+      addMoveContentLeftTop(divEle, e) {
+        this.addMoveContentSuper(divEle, e);
         let top = this.space.top;
         let left = this.space.left;
         let width = this.space.width + (-this.space.x);
@@ -345,29 +373,17 @@
 </script>
 
 <style scoped>
+  /*移动*/
   .move-content-outer {
-    border: 1px #00000F solid;
-    width: 200px;
-    height: 200px;
-    position: absolute;
-    outline: none;
-    user-select: none;
-  }
-
-  .move-content-outer:focus .show {
-    display: block;
-  }
-
-  /* 移动 */
-  .move-content-header {
     background-color: lightgoldenrodyellow;
     width: 100%;
     height: 100%;
     text-align: center;
     line-height: 100%;
+    position: absolute;
   }
 
-  .move-content-header:focus .show {
+  .move-content-outer:focus .show {
     display: block;
   }
 
@@ -375,10 +391,12 @@
   .move-content-direction {
     width: 5px;
     height: 5px;
-    border: 1px #00000F solid;
+    border: 1px #2c3e50 solid;
     background-color: #E1E1E1;
     position: absolute;
     display: none;
+    padding: 2px;
+    border-radius: 10px;
   }
 
   /* 八个方位的小手各自的div */
