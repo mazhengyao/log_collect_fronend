@@ -17,7 +17,7 @@
       </div>
     </div>
     <!--中间-->
-    <div ref="  " id="board" class="board" :style="changeStyle">
+    <div ref="board" id="board" class="board" :style="changeStyle">
       <transform_div v-for="(item,index) in style" :id="item.comName" :com="item" :board="boardInfo"
                      @transformDivItem="transformDivItem"
                      @transformDivStyle="transformDivStyle">
@@ -383,36 +383,6 @@
   }
 
   .chart {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    overflow: hidden;
-    word-break: break-all;
-  }
-
-  #barChart {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    overflow: hidden;
-    word-break: break-all;
-  }
-
-  #lineChart {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    overflow: hidden;
-    word-break: break-all;
-  }
-
-  #pieChart {
     position: relative;
     width: 100%;
     height: 100%;
