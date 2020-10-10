@@ -17,7 +17,7 @@
       </div>
     </div>
     <!--中间-->
-    <div ref="board" id="board" class="board" :style="changeStyle">
+    <div ref="  " id="board" class="board" :style="changeStyle">
       <transform_div v-for="(item,index) in style" :id="item.comName" :com="item" :board="boardInfo"
                      @transformDivItem="transformDivItem"
                      @transformDivStyle="transformDivStyle">
@@ -26,13 +26,13 @@
     </div>
     <!--右侧-->
     <div id="tools">
-      &nbsp;&nbsp;&nbsp;&nbsp;Top:<input class="setInput" type="text" v-model="setting.comTop"/>
+      &nbsp;&nbsp;&nbsp;&nbsp;Top:<input class="setInput" type="text" v-model="setting.comTop" @input="inputTop($event)"/>
       <br>
-      &nbsp;&nbsp;&nbsp;&nbsp;Left:<input class="setInput" type="text" v-model="setting.comLeft"/>
+      &nbsp;&nbsp;&nbsp;&nbsp;Left:<input class="setInput" type="text" v-model="setting.comLeft" @input="inputLeft($event)"/>
       <br>
-      Height:<input class="setInput" type="text" v-model="setting.comHeight"/>
+      Height:<input class="setInput" type="text" v-model="setting.comHeight" @input="inputHeight($event)"/>
       <br>
-      &nbsp;&nbsp;Width:<input class="setInput" type="text" v-model="setting.comWidth"/>
+      &nbsp;&nbsp;Width:<input class="setInput" type="text" v-model="setting.comWidth"  @input="inputWidth($event)"/>
       <br>
       &nbsp;&nbsp;&nbsp;Index:<input class="setInput" type="text" v-model="setting.index"/>
       <br>
@@ -305,6 +305,42 @@
             this.$echarts.init(document.getElementById("chart" + index)).resize()
           })
         })
+      },
+      inputTop(e){
+        let value = e.target.value;
+        if (value < 0){
+          this.setting.comTop = 0
+        }
+        if (value > this.boardInfo.boardHeight - this.setting.comHeight){
+          this.setting.comTop = this.boardInfo.boardHeight - this.setting.comHeight
+        }
+      },
+      inputLeft(e){
+        let val = e.target.value;
+        if (val < 0){
+          this.setting.comLeft = 0
+        }
+        if (val > this.boardInfo.boardWidth - this.setting.comWidth){
+          this.setting.comLeft = this.boardInfo.boardWidth - this.setting.comWidth
+        }
+      },
+      inputHeight(e){
+        let val = e.target.value;
+        if (val < 0){
+          this.setting.comHeight = 100
+        }
+        if (val > this.boardInfo.boardHeight - this.setting.comTop){
+          this.setting.comHeight = this.boardInfo.boardHeight - this.setting.comTop
+        }
+      },
+      inputWidth(e){
+        let val = e.target.value;
+        if (val < 0){
+          this.setting.comWidth = 100
+        }
+        if (val > this.boardInfo.boardWidth - this.setting.comLeft){
+          this.setting.comWidth = this.boardInfo.boardWidth - this.setting.comLeft
+        }
       },
     }
   }
