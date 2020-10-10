@@ -1,53 +1,74 @@
 <template>
   <div id="app">
     <h1>{{ msg }}</h1>
+    <!--左侧-->
+    <div id="option">
+      <div id="createBarItem" class="createItem" @click="createBarItem">
+        <p class="tips">Create a new bar item.</p>
+        <img class="clickImg" src="./image/bar.png">
+      </div>
+      <div id="createLineItem" class="createItem" @click="createLineItem">
+        <p class="tips">Create a new line item.</p>
+        <img class="clickImg" src="./image/line.png">
+      </div>
+      <div id="createPieItem" class="createItem" @click="createPieItem">
+        <p class="tips">Create a new pie item.</p>
+        <img class="clickImg" src="./image/pie.png">
+      </div>
+    </div>
+    <!--中间-->
     <div ref="board" id="board" class="board" :style="changeStyle">
-      <transform_div id="transform_div1" :myStyle="style">
-        <div id="barChart"></div>
-      </transform_div>
-      <transform_div id="transform_div2" :myStyle="style">
-        <div id="pieChart"></div>
-      </transform_div>
-      <transform_div id="transform_div3" :myStyle="style">
-        <div id="lineChart"></div>
+      <transform_div v-for="(item,index) in style" :id="item.comName" :com="item" :board="boardInfo"
+                     @transformDivItem="transformDivItem"
+                     @transformDivStyle="transformDivStyle">
+        <div :id="item.conName" class="chart"></div>
       </transform_div>
     </div>
+    <!--右侧-->
     <div id="tools">
-      Height: <input class="setInput" type="text" v-model="style.comHeight" />
-      &nbsp;&nbsp;Width: <input class="setInput" type="text" v-model="style.comWidth"/>
-<!--      <input type="submit" value="Submit" />-->
+      &nbsp;&nbsp;&nbsp;&nbsp;Top:<input class="setInput" type="text" v-model="setting.comTop"/>
+      <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;Left:<input class="setInput" type="text" v-model="setting.comLeft"/>
+      <br>
+      Height:<input class="setInput" type="text" v-model="setting.comHeight"/>
+      <br>
+      &nbsp;&nbsp;Width:<input class="setInput" type="text" v-model="setting.comWidth"/>
+      <br>
+      &nbsp;&nbsp;&nbsp;Index:<input class="setInput" type="text" v-model="setting.index"/>
+      <br>
+      <input id="save" type="submit" value="Save" @click=""/>
     </div>
-<!--    todo log collect  -->
-<!--    <router-link to="/transform_div">transform_div</router-link>-->
-<!--    <router-view></router-view>-->
-<!--    <router-link to="/log_form">log_form</router-link>-->
-<!--    <router-view></router-view>-->
-<!--    <div id="myChart">-->
-<!--    </div>-->
-<!--    <div class="container">-->
-<!--      <input id="document" type="file" v-on:change="readFileInputEventAsArrayBuffer"/>-->
-<!--      <div class="row" style="width: 100%;">-->
-<!--        <div class="span8">-->
-<!--          <div id="output" class="well"></div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--      <button type="button" id="show" style="width: 50px;height: 30px;"-->
-<!--              v-on:click="showDoc">show-->
-<!--      </button>-->
-<!--    </div>-->
+
+    <!--    todo log collect  -->
+    <!--    <router-link to="/transform_div">transform_div</router-link>-->
+    <!--    <router-view></router-view>-->
+    <!--    <router-link to="/log_form">log_form</router-link>-->
+    <!--    <router-view></router-view>-->
+    <!--    <div id="myChart">-->
+    <!--    </div>-->
+    <!--    <div class="container">-->
+    <!--      <input id="document" type="file" v-on:change="readFileInputEventAsArrayBuffer"/>-->
+    <!--      <div class="row" style="width: 100%;">-->
+    <!--        <div class="span8">-->
+    <!--          <div id="output" class="well"></div>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--      <button type="button" id="show" style="width: 50px;height: 30px;"-->
+    <!--              v-on:click="showDoc">show-->
+    <!--      </button>-->
+    <!--    </div>-->
   </div>
 </template>
 
 <script>
   import mammoth from 'mammoth'
-
   var elementResizeDetectorMaker = require("element-resize-detector")
 
   export default {
     name: 'app',
     data() {
       return {
-        msg: 'Wake me up when september ends.',
+        msg: 'Transform Div',
         logData: {
           debug: '',
           info: '',
@@ -55,9 +76,15 @@
           error: '',
           fatal: '',
         },
-        style: {
+        setting: {
+          comTop: 0,
+          comLeft: 0,
           comHeight: 200,
           comWidth: 200,
+          index: 0,
+        },
+        style: [],
+        boardInfo: {
           boardTop: 0,
           boardLeft: 0,
           boardBottom: 0,
@@ -69,39 +96,11 @@
     },
     computed: {
       changeStyle() {
-          return `height: ${this.style.boardHeight}px; width: ${this.style.boardWidth}px`
-      }
+        return `height: ${this.boardInfo.boardHeight}px; width: ${this.boardInfo.boardWidth}px`
+      },
     },
     mounted() {
-      // 图表自适应div大小变化
-      let erd = elementResizeDetectorMaker()
-      erd.listenTo(document.getElementById("transform_div1"), (element) => {
-        // let width = element.offsetWidth
-        // let height = element.offsetHeight
-        this.$nextTick(function () {
-          //使echarts尺寸重置
-          this.$echarts.init(document.getElementById("barChart")).resize()
-        })
-      })
-      // 图表自适应div大小变化
-      erd.listenTo(document.getElementById("transform_div2"), (element) => {
-        this.$nextTick(function () {
-          //使echarts尺寸重置
-          this.$echarts.init(document.getElementById("pieChart")).resize()
-        })
-      })
-      // 图表自适应div大小变化
-      erd.listenTo(document.getElementById("transform_div3"), (element) => {
-        this.$nextTick(function () {
-          //使echarts尺寸重置
-          this.$echarts.init(document.getElementById("lineChart")).resize()
-        })
-      })
-
       this.setBoardOffset();
-      this.drawBarChart();
-      this.drawPieChart();
-      this.drawLineChart();
       // this.queryLogData();
     },
     methods: {
@@ -167,9 +166,39 @@
         //   .done();
 
       },
-      drawBarChart() {
-        const barChart = this.$echarts.init(document.getElementById('barChart'));
-        barChart.setOption({
+      setBoardOffset() {
+        this.boardInfo.boardTop = this.$refs["board"].offsetTop
+        this.boardInfo.boardLeft = this.$refs["board"].offsetLeft
+        this.boardInfo.boardBottom = this.$refs["board"].offsetTop + this.$refs["board"].offsetHeight
+        this.boardInfo.boardRight = this.$refs["board"].offsetLeft + this.$refs["board"].offsetWidth
+        this.boardInfo.boardHeight = this.$refs["board"].offsetHeight
+        this.boardInfo.boardWidth = this.$refs["board"].offsetWidth
+      },
+      transformDivItem(data) {
+        this.setting = data
+      },
+      transformDivStyle(data) {
+        this.setting.comHeight = data.height
+        this.setting.comWidth = data.width
+        this.setting.comTop = data.top
+        this.setting.comLeft = data.left
+      },
+      async createBarItem() {
+        const index = this.style.length + 1;
+        // 添加新Transform div
+        await this.style.push({
+          comName: 'transform_div' + index,
+          conName: 'chart' + index,
+          conType: 'bar',
+          comTop: 0,
+          comLeft: 0,
+          comHeight: 200,
+          comWidth: 200,
+          index: 0,
+        })
+        // 添加新图表
+        const chart = await this.$echarts.init(document.getElementById('chart' + index));
+        chart.setOption({
           title: {text: 'Vue&ECharts:Bar'},
           tooltip: {},
           xAxis: {
@@ -179,16 +208,32 @@
           series: [{
             name: '',
             type: 'bar',
-            data: ['13', '23', '53', '43', '23']
+            data: [this.random(1,100), this.random(1,100), this.random(1,100),
+              this.random(1,100), this.random(1,100)]
           }]
         });
         window.addEventListener('resize', () => {
-          barChart.resize();
+          chart.resize();
         });
+        // 自适应大小
+        await this.resizeChart(index)
       },
-      drawLineChart() {
-        const lineChart = this.$echarts.init(document.getElementById('lineChart'));
-        lineChart.setOption({
+      async createLineItem() {
+        const index = this.style.length + 1;
+        // 添加新Transform div
+        await this.style.push({
+          comName: 'transform_div' + index,
+          conName: 'chart' + index,
+          conType: 'line',
+          comTop: 0,
+          comLeft: 0,
+          comHeight: 200,
+          comWidth: 200,
+          index: 0,
+        })
+        // 添加新图表
+        const chart = await this.$echarts.init(document.getElementById('chart' + index));
+        chart.setOption({
           title: {text: 'Vue&ECharts:Line'},
           tooltip: {},
           xAxis: {
@@ -198,47 +243,78 @@
           series: [{
             name: '',
             type: 'line',
-            data: ['13', '23', '53', '43', '23']
+            data: [this.random(1,100), this.random(1,100), this.random(1,100),
+              this.random(1,100), this.random(1,100)]
           }]
         });
         window.addEventListener('resize', () => {
-          lineChart.resize();
+          chart.resize();
         });
+        await this.resizeChart(index)
       },
-      drawPieChart() {
-        const pieChart = this.$echarts.init(document.getElementById('pieChart'));
-        pieChart.setOption({
+      async createPieItem() {
+        const index = this.style.length + 1;
+        // 添加新Transform div
+        await this.style.push({
+          comName: 'transform_div' + index,
+          conName: 'chart' + index,
+          conType: 'pie',
+          comTop: 0,
+          comLeft: 0,
+          comHeight: 200,
+          comWidth: 200,
+          index: 0,
+        })
+        // 添加新图表
+        const chart = await this.$echarts.init(document.getElementById('chart' + index));
+        chart.setOption({
           title: {text: 'Vue&ECharts:Pie'},
           tooltip: {},
           series: [{
             name: '',
             type: 'pie',
             data: [
-              {value: 13, name: 'DEBUG'},
-              {value: 23, name: 'INFO'},
-              {value: 53, name: 'WARN'},
-              {value: 43, name: 'ERROR'},
-              {value: 23, name: 'FATAL'},
+              {value: this.random(1,100), name: 'DEBUG'},
+              {value: this.random(1,100), name: 'INFO'},
+              {value: this.random(1,100), name: 'WARN'},
+              {value: this.random(1,100), name: 'ERROR'},
+              {value: this.random(1,100), name: 'FATAL'},
             ]
           }]
         });
         window.addEventListener('resize', () => {
-          pieChart.resize();
+          chart.resize();
         });
+        // 图表自适应
+        await this.resizeChart(index)
       },
-      setBoardOffset() {
-        this.style.boardTop = this.$refs["board"].offsetTop
-        this.style.boardLeft = this.$refs["board"].offsetLeft
-        this.style.boardBottom = this.$refs["board"].offsetTop + this.$refs["board"].offsetHeight
-        this.style.boardRight = this.$refs["board"].offsetLeft + this.$refs["board"].offsetWidth
-        this.style.boardHeight = this.$refs["board"].offsetHeight
-        this.style.boardWidth = this.$refs["board"].offsetWidth
+      // 随机数
+      random(lower, upper) {
+        return Math.floor(Math.random() * (upper - lower)) + lower;
+      },
+      // 图表大小自适应
+      resizeChart(index){
+        // 图表自适应div大小变化
+        let erd = elementResizeDetectorMaker()
+          // 图表自适应div大小变化
+        erd.listenTo(document.getElementById("transform_div" + index), (element) => {
+          this.$nextTick(function () {
+            // let width = element.offsetWidth
+            // let height = element.offsetHeight
+            //使echarts尺寸重置
+            this.$echarts.init(document.getElementById("chart" + index)).resize()
+          })
+        })
       },
     }
   }
 </script>
 
 <style>
+  html {
+    background-color: whitesmoke;
+  }
+
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -246,20 +322,20 @@
     text-align: center;
     color: #2c3e50;
     /*margin-top: 60px;*/
-    -webkit-touch-callout:none;  /*系统默认菜单被禁用*/
-    -webkit-user-select:none; /*webkit浏览器*/
+    -webkit-touch-callout: none; /*系统默认菜单被禁用*/
+    -webkit-user-select: none; /*webkit浏览器*/
     /*-khtml-user-select:none; !*早期浏览器*!*/
-    -moz-user-select:none;/*火狐*/
-    -ms-user-select:none; /*IE10*/
-    user-select:none;
+    -moz-user-select: none; /*火狐*/
+    -ms-user-select: none; /*IE10*/
+    user-select: none;
   }
 
-  input{
-    -webkit-user-select:auto; /*webkit浏览器*/
+  input {
+    -webkit-user-select: auto; /*webkit浏览器*/
   }
-  
-  textarea{
-    -webkit-user-select:auto; /*webkit浏览器*/
+
+  textarea {
+    -webkit-user-select: auto; /*webkit浏览器*/
   }
 
   #myChart {
@@ -268,6 +344,16 @@
     width: 600px;
     height: 350px;
     display: none;
+  }
+
+  .chart {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden;
+    word-break: break-all;
   }
 
   #barChart {
@@ -307,25 +393,76 @@
 
   .board {
     position: relative;
+    float: left;
     background-color: #2c3e50;
-    display: inline-block;
+    display: block;
   }
 
-  #tools{
+  #tools {
     width: 200px;
     height: 800px;
-    display: inline-block;
+    display: block;
     background-color: cornflowerblue;
-    float: right;
-    position: absolute;
+    float: left;
+    /*position: absolute;*/
+  }
+
+  #option {
+    width: 200px;
+    height: 800px;
+    display: block;
+    background-color: cornflowerblue;
+    float: left;
+    margin-left: 230px;
+    /*position: absolute;*/
   }
 
   h1 {
     margin: 0 0 10px 0;
   }
 
-  .setInput{
+  .setInput {
     width: 100px;
     margin-bottom: 10px;
   }
+
+  #save {
+    margin-top: 600px;
+    border-radius: 10px;
+    background-color: #E1E1E1;
+    font-weight: bold;
+  }
+
+  .createItem {
+    width: 100%;
+    height: 33.33%;
+  }
+
+  .clickImg {
+    margin: 0;
+    width: 100%;
+    height: 65%;
+  }
+
+  .tips {
+    margin: 0;
+    width: 100%;
+    height: 35%;
+    color: #E1E1E1;
+    font-weight: bold;
+    line-height: 100px;
+  }
+
+  #createBarItem {
+    background-color: darkcyan;
+  }
+
+  #createLineItem {
+    background-color: darkgreen;
+  }
+
+  #createPieItem {
+    background-color: darkslateblue;
+  }
+
 </style>

@@ -17,13 +17,17 @@
   export default {
     name: "transform_div",
     props: {
-      myStyle: {
+      com: {
         type: Object
-      }
+      },
+      board: {
+        type: Object
+      },
     },
     computed: {
       changeStyle() {
-        return `height: ${this.style.height}px; width: ${this.style.width}px`
+        return `height: ${this.style.height}px; width: ${this.style.width}px;
+                top: ${this.style.top}px; left: ${this.style.left}px; z-index: ${this.style.index};`
       }
     },
     data() {
@@ -32,27 +36,33 @@
           style: '', // 样式
           x: 0, // 鼠标x
           y: 0, // 鼠标y
-          width: this.myStyle.comWidth, // 默认div的宽度
-          height: this.myStyle.comHeight, // 默认div的高度
-          top: 0, // 默认div的距离头部距离
+          width: this.com.comWidth, // 默认div的宽度
+          height: this.com.comHeight, // 默认div的高度
+          top: this.com.comTop, // 默认div的距离头部距离
           right: 0, // 默认div的距离右侧距离
           bottom: 0, // 默认div的距离底部距离
-          left: 0, // 默认div的距离左侧距离
+          left: this.com.comLeft, // 默认div的距离左侧距离
           moveHeight: 30, // 默认头部高度
           min: 100, // div宽度高度不能小于min
           moveTarget: null, // 鼠标按下之后移动的target
         },
         style: {
-          height: this.myStyle.comHeight,
-          width: this.myStyle.comWidth,
+          top: this.com.comTop,
+          left: this.com.comLeft,
+          height: this.com.comHeight,
+          width: this.com.comWidth,
+          index: this.com.index,
         }
       }
     },
     watch: {
-      myStyle: {
+      com: {
         handler(newValue, oldValue) {
-          this.style.height = newValue.comHeight
-          this.style.width = newValue.comWidth
+          this.style.top = parseInt(newValue.comTop)
+          this.style.left = parseInt(newValue.comLeft)
+          this.style.height = parseInt(newValue.comHeight)
+          this.style.width = parseInt(newValue.comWidth)
+          this.style.index = parseInt(newValue.index)
         },
         deep: true
       }
@@ -61,6 +71,7 @@
     },
     methods: {
       mousedownDiv(event) {
+        this.$emit('transformDivItem',this.com)
         document.onmousemove = (e) => {
           this.addMoveContentControl(this.$refs['transformDiv'], e);
         }
@@ -68,8 +79,8 @@
       addMoveContentSuper(divEle, e) {
         // div的style
         this.space.style = divEle.style;
-        this.space.width = this.space.style.width ? this.space.style.width : this.myStyle.comHeight;
-        this.space.height = this.space.style.height ? this.space.style.height : this.myStyle.comWidth;
+        this.space.width = this.space.style.width ? this.space.style.width : this.com.comHeight;
+        this.space.height = this.space.style.height ? this.space.style.height : this.com.comWidth;
         this.space.top = this.space.style.top ? this.space.style.top : 0;
         this.space.left = this.space.style.left ? this.space.style.left : 0;
         this.space.right = this.space.style.right ? this.space.style.right : 0;
@@ -86,8 +97,8 @@
       },
       addMoveContentControl(divEle, e) {
         // 当鼠标没有按下则不走方法、超过限制范围不走方法
-        // if (e.buttons !== 1 || e.clientX >= this.myStyle.boardRight || e.clientX <= this.myStyle.boardLeft
-        //   || e.clientY <= this.myStyle.boardTop || e.clientY >= this.myStyle.boardBottom) {
+        // if (e.buttons !== 1 || e.clientX >= this.board.boardRight || e.clientX <= this.board.boardLeft
+        //   || e.clientY <= this.board.boardTop || e.clientY >= this.board.boardBottom) {
         if (e.buttons !== 1) {
           this.space.moveTarget = null;
           return;
@@ -149,20 +160,22 @@
           top = 0
         }
         // 限制 bottom
-        if ((top + height) >= this.myStyle.boardHeight) {
-          top = this.myStyle.boardHeight - height
+        if ((top + height) >= this.board.boardHeight) {
+          top = this.board.boardHeight - height
         }
         // 限制 left
         if (left <= 0) {
           left = 0
         }
         // 限制 right
-        if ((left + width) >= this.myStyle.boardWidth) {
-          left = this.myStyle.boardWidth - width
+        if ((left + width) >= this.board.boardWidth) {
+          left = this.board.boardWidth - width
         }
 
         this.space.style.top = top + "px";
         this.space.style.left = left + "px";
+
+        this.transformDivStyle()
       },
       // 向上拉伸
       addMoveContentTop(divEle, e) {
@@ -184,6 +197,8 @@
 
         this.space.style.top = top + "px";
         this.space.style.height = height + "px";
+
+        this.transformDivStyle()
       },
       // 右上拉伸
       addMoveContentRightTop(divEle, e) {
@@ -208,17 +223,19 @@
           height = this.space.height;
         }
         // 限制 right
-        if ((left + width) >= this.myStyle.boardWidth) {
+        if ((left + width) >= this.board.boardWidth) {
           width = this.space.width;
         }
         // 限制 bottom
-        if ((top + height) >= this.myStyle.boardHeight) {
-          top = this.myStyle.boardHeight - height;
+        if ((top + height) >= this.board.boardHeight) {
+          top = this.board.boardHeight - height;
         }
 
         this.space.style.top = top + "px";
         this.space.style.width = width + "px";
         this.space.style.height = height + "px";
+
+        this.transformDivStyle()
       },
       // 右侧拉伸
       addMoveContentRight(divEle, e) {
@@ -231,11 +248,13 @@
           width = this.space.min;
         }
         // 限制 right
-        if ((left + width) >= this.myStyle.boardWidth) {
+        if ((left + width) >= this.board.boardWidth) {
           width = this.space.width
         }
 
         this.space.style.width = width + "px";
+
+        this.transformDivStyle()
       },
       // 右下拉伸
       addMoveContentRightButtom(divEle, e) {
@@ -253,16 +272,18 @@
           width = this.space.min;
         }
         // 限制 right
-        if ((left + width) >= this.myStyle.boardWidth) {
+        if ((left + width) >= this.board.boardWidth) {
           width = this.space.width
         }
         // 限制 bottom
-        if ((top + height) >= this.myStyle.boardHeight) {
+        if ((top + height) >= this.board.boardHeight) {
           height = this.space.height
         }
 
         this.space.style.width = width + "px";
         this.space.style.height = height + "px";
+
+        this.transformDivStyle()
       },
       // 向下拉伸
       addMoveContentButtom(divEle, e) {
@@ -275,11 +296,13 @@
           height = this.space.min;
         }
         // 限制 bottom
-        if ((top + height) >= this.myStyle.boardHeight) {
+        if ((top + height) >= this.board.boardHeight) {
           height = this.space.height
         }
 
         this.space.style.height = height + "px";
+
+        this.transformDivStyle()
       },
       // 左下拉伸
       addMoveContentLeftButtom(divEle, e) {
@@ -304,13 +327,15 @@
           width = this.space.width
         }
         // 限制 bottom
-        if ((top + height) >= this.myStyle.boardHeight) {
+        if ((top + height) >= this.board.boardHeight) {
           height = this.space.height
         }
 
         this.space.style.width = width + "px";
         this.space.style.height = height + "px";
         this.space.style.left = left + "px";
+
+        this.transformDivStyle()
       },
       // 向左拉伸
       addMoveContentLeft(divEle, e) {
@@ -332,6 +357,8 @@
 
         this.space.style.left = left + "px";
         this.space.style.width = width + "px";
+
+        this.transformDivStyle()
       },
       // 左上拉伸
       addMoveContentLeftTop(divEle, e) {
@@ -367,7 +394,18 @@
         this.space.style.left = left + "px";
         this.space.style.width = width + "px";
         this.space.style.height = height + "px";
-      }
+
+        this.transformDivStyle()
+      },
+      // 父组件传递数据
+      transformDivStyle() {
+        this.$emit('transformDivStyle', {
+          top: parseInt(this.space.style.top.toString().replace('px', '')),
+          left: parseInt(this.space.style.left.toString().replace('px', '')),
+          height: parseInt(this.space.style.height.toString().replace('px', '')),
+          width: parseInt(this.space.style.width.toString().replace('px', ''))
+        })
+      },
     }
   }
 </script>
