@@ -3,22 +3,15 @@
     <h1>{{ msg }}</h1>
     <!--左侧-->
     <div id="option">
-      <div id="createBarItem" class="createItem" @click="createBarItem">
-        <p class="tips">Create a new bar item.</p>
-        <img class="clickImg" src="./image/bar.png">
-      </div>
-      <div id="createLineItem" class="createItem" @click="createLineItem">
-        <p class="tips">Create a new line item.</p>
-        <img class="clickImg" src="./image/line.png">
-      </div>
-      <div id="createPieItem" class="createItem" @click="createPieItem">
-        <p class="tips">Create a new pie item.</p>
-        <img class="clickImg" src="./image/pie.png">
+      <div v-for="(item,index) in items" :key="item.name" :id="item.name" class="createItem"
+           @click="createItem(item.name, item.type, item.show)">
+        <p class="tips">{{item.tip}}.</p>
+        <img class="clickImg" :src="item.src">
       </div>
     </div>
     <!--中间-->
     <div ref="board" id="board" class="board" :style="changeStyle">
-      <transform_div v-for="(item,index) in style" :id="item.comName" :com="item" :board="boardInfo"
+      <transform_div v-for="(item,index) in style" :key="item.name" :id="item.comName" :com="item" :board="boardInfo"
                      @transformDivItem="transformDivItem"
                      @transformDivStyle="transformDivStyle">
         <div :id="item.conName" class="chart"></div>
@@ -83,7 +76,6 @@
           comWidth: 200,
           index: 0,
         },
-        style: [],
         boardInfo: {
           boardTop: 0,
           boardLeft: 0,
@@ -92,6 +84,10 @@
           boardHeight: 800,
           boardWidth: 1000,
         },
+        // transform div
+        style: [],
+        // 左侧
+        items: [],
       }
     },
     computed: {
@@ -100,7 +96,10 @@
       },
     },
     mounted() {
+      // 画版的属性
       this.setBoardOffset();
+      // 左侧点击div
+      this.setItems();
       // this.queryLogData();
     },
     methods: {
@@ -342,6 +341,46 @@
           this.setting.comWidth = this.boardInfo.boardWidth - this.setting.comLeft
         }
       },
+      createItem(name, type, show){
+        // is show
+        if (show){
+          return;
+        }
+        if (type === 'bar'){
+          this.createBarItem()
+        }else if(type === 'line'){
+          this.createLineItem()
+        }else if(type === 'pie'){
+          this.createPieItem()
+        }
+        // which
+        this.items[name.replace("item","") - 1].show = true
+      },
+      setItems(){
+        // 源自其他数据
+        this.items.push(
+          {
+            name: 'item1',
+            tip: 'Create a new bar item.',
+            src: require('./image/bar.png'),
+            type: 'bar',
+            show: false,
+          },
+          {
+            name: 'item2',
+            tip: 'Create a new line item.',
+            src: require('./image/line.png'),
+            type: 'line',
+            show: false,
+          },
+          {
+            name: 'item3',
+            tip: 'Create a new pie item.',
+            src: require('./image/pie.png'),
+            type: 'pie',
+            show: false,
+          })
+      },
     }
   }
 </script>
@@ -459,15 +498,15 @@
     line-height: 100px;
   }
 
-  #createBarItem {
+  #item1 {
     background-color: darkcyan;
   }
 
-  #createLineItem {
+  #item2 {
     background-color: darkgreen;
   }
 
-  #createPieItem {
+  #item3 {
     background-color: darkslateblue;
   }
 
