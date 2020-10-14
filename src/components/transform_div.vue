@@ -10,6 +10,18 @@
     <div class="move-content-direction show move-content-direction-sw"></div>
     <div class="move-content-direction show move-content-direction-w"></div>
     <div class="move-content-direction show move-content-direction-nw"></div>
+<!--    设置框-->
+<!--    <div class="move-content-setting show">-->
+<!--      <span class="move-content-text">Top:</span><input class="move-content-input" type="text"/>-->
+<!--      <br>-->
+<!--      <span class="move-content-text">Left:</span><input class="move-content-input" type="text"/>-->
+<!--      <br>-->
+<!--      <span class="move-content-text">Height:</span><input class="move-content-input" type="text"/>-->
+<!--      <br>-->
+<!--      <span class="move-content-text">Width:</span><input class="move-content-input" type="text"/>-->
+<!--      <br>-->
+<!--      <span class="move-content-text">Index:</span><input class="move-content-input" type="text"/>-->
+<!--    </div>-->
   </div>
 </template>
 
@@ -98,7 +110,7 @@
       addMoveContentControl(divEle, e) {
         // 当鼠标没有按下则不走方法、超过限制范围不走方法
         // if (e.buttons !== 1 || e.clientX >= this.board.boardRight || e.clientX <= this.board.boardLeft
-        //   || e.clientY <= this.board.boardTop || e.clientY >= this.board.boardBottom) {
+        //   || e.clientY <= this.board.boardTop || e.clientY >= this.board.boardBottom)
         if (e.buttons !== 1) {
           this.space.moveTarget = null;
           return;
@@ -413,7 +425,8 @@
 <style scoped>
   /*移动*/
   .move-content-outer {
-    background-color: lightgoldenrodyellow;
+    /*background-color: lightgoldenrodyellow;*/
+    background-color: whitesmoke;
     width: 100%;
     height: 100%;
     text-align: center;
@@ -488,6 +501,31 @@
     cursor: nw-resize;
     left: -7px;
     top: -7px;
+  }
+
+  /* 设置框 */
+  .move-content-setting {
+    width: 150px;
+    height: 120px;
+    border: 3px darkslategrey dotted;
+    background-color: whitesmoke;
+    position: absolute;
+    display: none;
+    border-radius: 3px;
+    bottom: -150px;
+    left: 50%;
+    margin-left: -80px;
+  }
+
+  .move-content-text{
+    color: darkslategrey;
+    font-weight: 600;
+    font-size: 18px;
+    font-family: Candara;
+  }
+
+  .move-content-input{
+    width: 50px;
   }
 
 </style>

@@ -6,6 +6,9 @@ import VueRouter from "vue-router"; // 引入路由
 import axios from 'axios'
 import echarts from 'echarts'
 import mammoth from 'mammoth'
+import EditChart from "./EditChart";
+import DragChart from "./DragChart";
+import LogCollect from "./LogCollect";
 
 Vue.prototype.$echarts = echarts
 Vue.prototype.$axios = axios
@@ -25,6 +28,21 @@ const router = new VueRouter({
     {
       path: '/transform_div',
       component: transform_div
+    },
+    {
+      path: '/editchart',
+      name: 'EditChart',
+      component: EditChart,
+    },
+    {
+      path: '/dragchart',
+      name: 'DragChart',
+      component: DragChart,
+    },
+    {
+      path: '/logcollect',
+      name: 'LogCollect',
+      component: LogCollect,
     },
   ]
 })
