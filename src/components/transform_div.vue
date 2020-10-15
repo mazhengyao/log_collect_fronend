@@ -47,7 +47,7 @@
         let result = `height: ${this.style.height}px; width: ${this.style.width}px;
                 top: ${this.style.top}px; left: ${this.style.left}px; z-index: ${this.style.index};`
         if(this.showPoint){
-          result += 'border: 2px #2c3e50 solid;'
+          result += 'outline: 2px #2c3e50 solid;'
         }
         // else{
         //   result += 'border: 2px whitesmoke solid;'
