@@ -1,27 +1,33 @@
 <template>
   <div ref="transformDiv" @mousedown="mousedownDiv($event)" class="move-content-outer" :style="changeStyle"
-       tabIndex="1">
+       tabIndex="1" @focus="transformFocus" @blur="transformBlur">
     <slot></slot>
-    <div class="move-content-direction show move-content-direction-n"></div>
-    <div class="move-content-direction show move-content-direction-ne"></div>
-    <div class="move-content-direction show move-content-direction-e"></div>
-    <div class="move-content-direction show move-content-direction-se"></div>
-    <div class="move-content-direction show move-content-direction-s"></div>
-    <div class="move-content-direction show move-content-direction-sw"></div>
-    <div class="move-content-direction show move-content-direction-w"></div>
-    <div class="move-content-direction show move-content-direction-nw"></div>
-<!--    设置框-->
-<!--    <div class="move-content-setting show">-->
-<!--      <span class="move-content-text">Top:</span><input class="move-content-input" type="text"/>-->
-<!--      <br>-->
-<!--      <span class="move-content-text">Left:</span><input class="move-content-input" type="text"/>-->
-<!--      <br>-->
-<!--      <span class="move-content-text">Height:</span><input class="move-content-input" type="text"/>-->
-<!--      <br>-->
-<!--      <span class="move-content-text">Width:</span><input class="move-content-input" type="text"/>-->
-<!--      <br>-->
-<!--      <span class="move-content-text">Index:</span><input class="move-content-input" type="text"/>-->
-<!--    </div>-->
+    <div class="move-content-direction move-content-direction-n" v-show="showPoint"></div>
+    <div class="move-content-direction move-content-direction-ne" v-show="showPoint"></div>
+    <div class="move-content-direction move-content-direction-e" v-show="showPoint"></div>
+    <div class="move-content-direction move-content-direction-se" v-show="showPoint"></div>
+    <div class="move-content-direction move-content-direction-s" v-show="showPoint"></div>
+    <div class="move-content-direction move-content-direction-sw" v-show="showPoint"></div>
+    <div class="move-content-direction move-content-direction-w" v-show="showPoint"></div>
+    <div class="move-content-direction move-content-direction-nw" v-show="showPoint"></div>
+    <!--设置框-->
+    <div class="move-content-setting" v-show="showPoint">
+      <span class="move-content-text">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Top:</span>
+      <input class="move-content-input" type="text" v-model="style.top"
+             @focus="settingFocus" @blur="settingBlur" @input="inputTop($event)"/>
+      <br>
+      <span class="move-content-text">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Left:</span>
+      <input class="move-content-input" type="text" v-model="style.left"
+             @focus="settingFocus" @blur="settingBlur" @input="inputLeft($event)"/>
+      <span class="move-content-text">Height:</span>
+      <input class="move-content-input" type="text" v-model="style.height"
+             @focus="settingFocus" @blur="settingBlur" @input="inputHeight($event)"/>
+      <span class="move-content-text">&nbsp;Width:</span>
+      <input class="move-content-input" type="text" v-model="style.width"
+             @focus="settingFocus" @blur="settingBlur" @input="inputWidth($event)"/>
+      <span class="move-content-text">&nbsp;&nbsp;Index:</span>
+      <input class="move-content-input" type="text" @focus="settingFocus" v-model="style.index" @blur="settingBlur"/>
+    </div>
   </div>
 </template>
 
@@ -38,8 +44,15 @@
     },
     computed: {
       changeStyle() {
-        return `height: ${this.style.height}px; width: ${this.style.width}px;
+        let result = `height: ${this.style.height}px; width: ${this.style.width}px;
                 top: ${this.style.top}px; left: ${this.style.left}px; z-index: ${this.style.index};`
+        if(this.showPoint){
+          result += 'border: 2px #2c3e50 solid;'
+        }
+        // else{
+        //   result += 'border: 2px whitesmoke solid;'
+        // }
+        return result
       }
     },
     data() {
@@ -64,7 +77,9 @@
           height: this.com.comHeight,
           width: this.com.comWidth,
           index: this.com.index,
-        }
+        },
+        showPoint: false,
+        showSetting: false,
       }
     },
     watch: {
@@ -418,6 +433,63 @@
           width: parseInt(this.space.style.width.toString().replace('px', ''))
         })
       },
+      transformFocus(event) {
+        this.showPoint = true
+      },
+      transformBlur(event) {
+        // 当setting获取焦点后保持transform的焦点
+        setTimeout(()=>{
+          if (!this.showSetting) {
+            this.showPoint = false
+          }
+        }, 10)
+      },
+      settingFocus(event) {
+        this.showSetting = true
+      },
+      settingBlur(event) {
+        // 点击外侧时，重新获取对transform的焦点
+        if(!event.relatedTarget){
+          event.target.offsetParent.offsetParent.focus();
+        }
+        this.showSetting = false
+      },
+      inputTop(event){
+        let value = event.target.value;
+        if (value < 0){
+          this.style.top = 0
+        }
+        if (value > this.board.boardHeight - this.style.height){
+          this.style.top = this.board.boardHeight - this.style.height
+        }
+      },
+      inputLeft(event){
+        let val = event.target.value;
+        if (val < 0){
+          this.style.left = 0
+        }
+        if (val > this.board.boardWidth - this.style.width){
+          this.style.left = this.board.boardWidth - this.style.width
+        }
+      },
+      inputHeight(event){
+        let val = event.target.value;
+        if (val < 0){
+          this.style.height = 100
+        }
+        if (val > this.board.boardHeight - this.style.top){
+          this.style.height = this.board.boardHeight - this.style.top
+        }
+      },
+      inputWidth(event){
+        let val = event.target.value;
+        if (val < 0){
+          this.style.width = 100
+        }
+        if (val > this.board.boardWidth - this.style.left){
+          this.style.width = this.board.boardWidth - this.style.left
+        }
+      },
     }
   }
 </script>
@@ -434,8 +506,13 @@
     position: absolute;
   }
 
-  .move-content-outer:focus .show {
-    display: block;
+  /*.move-content-outer:focus .show {*/
+  /*  display: block;*/
+  /*}*/
+
+  .move-content-outer:focus{
+    /*选中时的外边框*/
+    outline: none;
   }
 
   /* 八个方位的div控制 */
@@ -445,12 +522,11 @@
     border: 1px #2c3e50 solid;
     background-color: #E1E1E1;
     position: absolute;
-    display: none;
     padding: 2px;
     border-radius: 10px;
   }
 
-  /* 八个方位的小手各自的div */
+  /* 八个方位的div各自的div */
   .move-content-direction-n {
     cursor: n-resize;
     left: 50%;
@@ -506,11 +582,10 @@
   /* 设置框 */
   .move-content-setting {
     width: 150px;
-    height: 120px;
+    height: 135px;
     border: 3px darkslategrey dotted;
     background-color: whitesmoke;
     position: absolute;
-    display: none;
     border-radius: 3px;
     bottom: -150px;
     left: 50%;
@@ -525,7 +600,8 @@
   }
 
   .move-content-input{
-    width: 50px;
+    width: 72px;
+    margin: 3px;
   }
 
 </style>

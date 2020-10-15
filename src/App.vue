@@ -37,7 +37,7 @@
     margin: 0;
   }
 
-  .link{
+  .link {
     color: darkslategrey;
     font-weight: 700;
     font-size: 25px;
@@ -46,7 +46,7 @@
     text-decoration: none;
   }
 
-  .division{
+  .division {
     display: inline;
     color: darkslategrey;
     font-weight: 700;
@@ -55,7 +55,7 @@
     margin: 0;
   }
 
-  .black{
+  .black {
     width: 100%;
     height: 20px;
   }

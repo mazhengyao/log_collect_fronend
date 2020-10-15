@@ -17,19 +17,19 @@
       </transform_div>
     </div>
     <!--右侧-->
-    <div id="tools">
-      &nbsp;&nbsp;&nbsp;&nbsp;Top:<input class="setInput" type="text" v-model="setting.comTop" @input="inputTop($event)"/>
-      <br>
-      &nbsp;&nbsp;&nbsp;&nbsp;Left:<input class="setInput" type="text" v-model="setting.comLeft" @input="inputLeft($event)"/>
-      <br>
-      Height:<input class="setInput" type="text" v-model="setting.comHeight" @input="inputHeight($event)"/>
-      <br>
-      &nbsp;&nbsp;Width:<input class="setInput" type="text" v-model="setting.comWidth"  @input="inputWidth($event)"/>
-      <br>
-      &nbsp;&nbsp;&nbsp;Index:<input class="setInput" type="text" v-model="setting.index"/>
-      <br>
-      <input id="save" type="submit" value="Save" @click=""/>
-    </div>
+    <!--<div id="tools">-->
+    <!--  &nbsp;&nbsp;&nbsp;&nbsp;Top:<input class="setInput" type="text" v-model="setting.comTop" @input="inputTop($event)"/>-->
+    <!--  <br>-->
+    <!--  &nbsp;&nbsp;&nbsp;&nbsp;Left:<input class="setInput" type="text" v-model="setting.comLeft" @input="inputLeft($event)"/>-->
+    <!--  <br>-->
+    <!--  Height:<input class="setInput" type="text" v-model="setting.comHeight" @input="inputHeight($event)"/>-->
+    <!--  <br>-->
+    <!--  &nbsp;&nbsp;Width:<input class="setInput" type="text" v-model="setting.comWidth" @input="inputWidth($event)"/>-->
+    <!--  <br>-->
+    <!--  &nbsp;&nbsp;&nbsp;Index:<input class="setInput" type="text" v-model="setting.index"/>-->
+    <!--  <br>-->
+    <!--  <input id="save" type="submit" value="Save" @click=""/>-->
+    <!--</div>-->
   </div>
 </template>
 
@@ -61,7 +61,7 @@
           boardBottom: 0,
           boardRight: 0,
           boardHeight: 800,
-          boardWidth: 1400,
+          boardWidth: 1600,
         },
         // transform div
         style: [],
@@ -221,6 +221,7 @@
           })
         })
       },
+      // Deprecated
       inputTop(e){
         let value = e.target.value;
         if (value < 0){
@@ -230,6 +231,7 @@
           this.setting.comTop = this.boardInfo.boardHeight - this.setting.comHeight
         }
       },
+      // Deprecated
       inputLeft(e){
         let val = e.target.value;
         if (val < 0){
@@ -239,6 +241,7 @@
           this.setting.comLeft = this.boardInfo.boardWidth - this.setting.comWidth
         }
       },
+      // Deprecated
       inputHeight(e){
         let val = e.target.value;
         if (val < 0){
@@ -248,6 +251,7 @@
           this.setting.comHeight = this.boardInfo.boardHeight - this.setting.comTop
         }
       },
+      // Deprecated
       inputWidth(e){
         let val = e.target.value;
         if (val < 0){
@@ -358,6 +362,18 @@
     margin-left: 10px;
   }
 
+  .setInput {
+    width: 100px;
+    margin-bottom: 10px;
+  }
+
+  #save {
+    border-radius: 10px;
+    background-color: #E1E1E1;
+    font-weight: bold;
+  }
+
+
   #option {
     width: 206px;
     height: 806px;
@@ -372,17 +388,6 @@
 
   h1 {
     margin: 0 0 10px 0;
-  }
-
-  .setInput {
-    width: 100px;
-    margin-bottom: 10px;
-  }
-
-  #save {
-    border-radius: 10px;
-    background-color: #E1E1E1;
-    font-weight: bold;
   }
 
   .createItem {
@@ -404,17 +409,5 @@
     font-weight: bold;
     line-height: 100px;
   }
-
-  /*#item1 {*/
-  /*  background-color: darkcyan;*/
-  /*}*/
-
-  /*#item2 {*/
-  /*  background-color: darkgreen;*/
-  /*}*/
-
-  /*#item3 {*/
-  /*  background-color: darkslateblue;*/
-  /*}*/
 
 </style>
